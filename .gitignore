@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Supabase & .NET
+supabase/.temp/
+obj/
+bin/
+
+# Misc
+.DS_Store
+*.log
+.env

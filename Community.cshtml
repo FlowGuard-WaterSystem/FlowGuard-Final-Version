@@ -1,0 +1,37 @@
+@page
+@model FlowGuardAdmin.Pages.CommunityModel
+<h2>Community</h2>
+<form method="post" asp-page-handler="Post" class="card">
+  <h3>Publish a municipality post</h3>
+  <textarea name="text" rows="3" maxlength="2000" placeholder="Share an update with residents" required></textarea>
+  <button class="btn" type="submit">Publish post</button>
+</form>
+@if (Model.Posts.Count == 0)
+{
+  <div class="card">There are no community posts yet.</div>
+}
+@foreach (var post in Model.Posts)
+{
+  <section class="card">
+    <div class="post-head"><strong>@post.Name</strong>@if (post.IsAdmin) { <span class="tag">Municipality</span> }<small>@post.When</small></div>
+    <p class="post-text">@post.Text</p>
+    @if (post.Comments.Count > 0)
+    {
+      <div class="comments">
+        @foreach (var comment in post.Comments)
+        {
+          <div class="comment"><strong>@comment.Name</strong>@if (comment.IsAdmin) { <span class="tag">Municipality</span> }<p>@comment.Text</p><small>@comment.When</small></div>
+        }
+      </div>
+    }
+    <div class="actions">
+      <form method="post" asp-page-handler="Reply" asp-route-id="@post.Id" class="reply-form">
+        <textarea name="text" rows="2" maxlength="2000" placeholder="Reply as Municipality" required></textarea>
+        <button class="btn" type="submit">Reply</button>
+      </form>
+      <form method="post" asp-page-handler="Delete" asp-route-id="@post.Id" onsubmit="return confirm('Delete this post and its replies?')">
+        <button class="btn danger" type="submit">Delete post</button>
+      </form>
+    </div>
+  </section>
+}
