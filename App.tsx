@@ -21,7 +21,7 @@ import { createClient } from "@supabase/supabase-js";
 // Data
 // ---------------------------------------------------------------------------
 
-// Shown until the admin adds real data to the "schedule" and "infrastructure" collections
+
 const SUPPLY = [
   { id: "s1", area: "Soweto", day: "Mon, Wed, Fri", time: "06:00 - 10:00" },
   { id: "s2", area: "Sandton", day: "Tue, Thu", time: "10:00 - 14:00" },
@@ -126,7 +126,7 @@ function useWatch(col: { d: any[]; ready: boolean }, on: boolean, sig: (x: any) 
   }, [col.d, col.ready]);
 }
 
-// Current weather from Open-Meteo (no API key). Uses the phone's location only if already permitted.
+
 function useWeather() {
   const [w, setW] = useState<any>(null);
   useEffect(() => {
@@ -377,7 +377,7 @@ function MapScreen({ alerts, infra, focus, onBack }: any) {
             <MapView 
         ref={m} 
         style={{ flex: 1 }} 
-        // UPDATED: Center of South Africa, zoomed out to show all provinces
+        
         initialRegion={{ latitude: -28.4793, longitude: 24.6727, latitudeDelta: 15.0, longitudeDelta: 15.0 }}
       >
         
@@ -532,7 +532,7 @@ function Mine({ issues, user, onBack, onReport }: any) {
   );
 }
 
-// Cloudinary's unsigned preset is intended for client-side uploads. Never put the API secret here.
+
 const CLOUDINARY_CLOUD_NAME = "oxuzharg";
 const CLOUDINARY_UPLOAD_PRESET = "flowguard-issues";
 
@@ -666,7 +666,7 @@ function Main({ user }: any) {
   const slide = useRef(new Animated.Value(-120)).current; const lastBanner = useRef(0);
 
   const notify = useCallback((m: string) => {
-    if (Date.now() - lastBanner.current < 4000) return; // avoid stacking a push and a live update for the same event
+    if (Date.now() - lastBanner.current < 4000) return; 
     lastBanner.current = Date.now();
     setBanner(m); slide.setValue(-120);
     Animated.sequence([Animated.spring(slide, { toValue: 0, useNativeDriver: true }), Animated.delay(3500), Animated.timing(slide, { toValue: -120, duration: 300, useNativeDriver: true })]).start(() => setBanner(null));
@@ -675,7 +675,7 @@ function Main({ user }: any) {
   useEffect(() => {
     AsyncStorage.getItem("prefs").then((p) => p && setPrefsState({ ...DEFAULT_PREFS, ...JSON.parse(p) }));
     const off = onSnapshot(doc(db, "users", user.uid), (s) => { const p = s.data(); setProfile(p); if (p?.prefs) setPrefsState({ ...DEFAULT_PREFS, ...p.prefs }); });
-    // Push: save this device's token so the municipality can send alerts to it
+   
     (async () => {
       try {
         const t = await registerForPush();
