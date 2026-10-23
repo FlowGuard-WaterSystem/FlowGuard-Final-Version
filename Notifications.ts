@@ -2,8 +2,7 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 
-// While the app is open, the in-app banner (App.tsx) is shown instead of the system banner.
-// While the app is closed or in the background, the system shows the push as normal.
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: false,
