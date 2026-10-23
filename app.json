@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "FlowGuardApp",
+    "slug": "FlowGuardApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.flowguard.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "FlowGuard uses Face ID to securely log you back into your account."
+      }
+    },
+    "android": {
+      "package": "com.flowguard.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "FlowGuard uses your location to show nearby water alerts and attach it to issue reports."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FlowGuard needs your photos so you can attach a picture or video to an issue report."
+        }
+      ],
+      "expo-local-authentication",
+      "expo-asset"
+    ]
+  }
+}
