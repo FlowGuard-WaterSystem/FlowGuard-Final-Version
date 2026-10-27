@@ -1,0 +1,71 @@
+@page
+@model IndexModel
+
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">FlowGuard / Control room</p>
+    <h1>Dashboard</h1>
+    <p class="page-subtitle">A quick view of water reports and municipal activity.</p>
+  </div>
+  <span class="date-chip">@DateTime.Now.ToString("dddd, d MMM yyyy")</span>
+</section>
+
+<section class="cards" aria-label="Service overview">
+  <article class="card metric-card tone-alert">
+    <div class="metric-top"><span class="metric-label">SERVICE STATUS</span><span class="metric-icon" aria-hidden="true">!</span></div>
+    <strong class="metric-value">@Model.ActiveAlerts</strong>
+    <span class="metric-label">Active alerts</span>
+  </article>
+  <article class="card metric-card tone-issues">
+    <div class="metric-top"><span class="metric-label">COMMUNITY</span><span class="metric-icon" aria-hidden="true">IR</span></div>
+    <strong class="metric-value">@Model.TotalIssues</strong>
+    <span class="metric-label">Reported issues</span>
+  </article>
+  <article class="card metric-card tone-pending">
+    <div class="metric-top"><span class="metric-label">NEEDS REVIEW</span><span class="metric-icon" aria-hidden="true">PN</span></div>
+    <strong class="metric-value">@Model.Pending</strong>
+    <span class="metric-label">Pending</span>
+  </article>
+  <article class="card metric-card tone-progress">
+    <div class="metric-top"><span class="metric-label">IN THE FIELD</span><span class="metric-icon" aria-hidden="true">IP</span></div>
+    <strong class="metric-value">@Model.InProgress</strong>
+    <span class="metric-label">In progress</span>
+  </article>
+  <article class="card metric-card tone-resolved">
+    <div class="metric-top"><span class="metric-label">COMPLETED</span><span class="metric-icon" aria-hidden="true">OK</span></div>
+    <strong class="metric-value">@Model.Resolved</strong>
+    <span class="metric-label">Resolved</span>
+  </article>
+</section>
+
+<section class="card section-card">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Latest activity</p>
+      <h3>Recent reports</h3>
+    </div>
+    <small>@Model.Latest.Count recent</small>
+  </div>
+  @if (Model.Latest.Count == 0)
+  {
+    <div class="empty-state">No issue reports yet. New reports will appear here.</div>
+  }
+  else
+  {
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Issue type</th><th>Details</th><th>Status</th></tr></thead>
+        <tbody>
+        @foreach (var i in Model.Latest)
+        {
+          <tr>
+            <td><strong>@i.Type</strong></td>
+            <td>@i.Details</td>
+            <td><span class="tag">@i.Status</span></td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,37 @@
+@page
+@model FlowGuardAdmin.Pages.SupplyModel
+<h2>Supply Schedule</h2>
+@if (TempData["Error"] is string error) { <p class="err">@error</p> }
+<form method="post" asp-page-handler="Create" class="card">
+  <h3>Add a supply schedule</h3>
+  <input name="area" placeholder="Area (e.g. Soweto)" maxlength="120" required />
+  <input name="day" placeholder="Days (e.g. Mon, Wed, Fri)" maxlength="120" required />
+  <input name="time" placeholder="Hours (e.g. 06:00 - 10:00)" maxlength="120" required />
+  <button class="btn" type="submit">Add schedule</button>
+</form>
+@if (Model.Schedule.Count == 0)
+{
+  <div class="card">No schedules are configured.</div>
+}
+else
+{
+  <table>
+    <tr><th>Area</th><th>Days</th><th>Hours</th><th>Actions</th></tr>
+    @foreach (var item in Model.Schedule)
+    {
+      <tr>
+        <td colspan="4">
+          <form method="post" asp-page-handler="Update" asp-route-id="@item.Id" class="inline-edit">
+            <input name="area" value="@item.Area" maxlength="120" required aria-label="Area" />
+            <input name="day" value="@item.Day" maxlength="120" required aria-label="Days" />
+            <input name="time" value="@item.Time" maxlength="120" required aria-label="Hours" />
+            <button class="btn" type="submit">Save</button>
+          </form>
+          <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" class="inline-delete" onsubmit="return confirm('Delete this supply schedule?')">
+            <button class="btn danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    }
+  </table>
+}
