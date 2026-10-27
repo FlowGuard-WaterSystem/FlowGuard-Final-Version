@@ -9,7 +9,13 @@
       <td>@i.Type</td>
       <td>@i.Details<br /><small>@(i.CreatedAt?.ToDateTime().ToLocalTime().ToString("g"))</small></td>
       <td>@if (i.PhotoUrl != null) { <a href="@i.PhotoUrl" target="_blank"><img src="@i.PhotoUrl" width="70" /></a> }</td>
-      <td>@if (i.Lat != null) { <a target="_blank" href="https://maps.google.com/?q=@i.Lat,@i.Lng">View map</a> }</td>
+      <td>
+        @if (i.Lat.HasValue && i.Lng.HasValue)
+        {
+          var coordinates = FormattableString.Invariant($"{i.Lat.Value:R},{i.Lng.Value:R}");
+          <a target="_blank" rel="noopener noreferrer" href="https://maps.google.com/?q=@coordinates">View map</a>
+        }
+      </td>
       <td>
         <form method="post" asp-page-handler="Update" asp-route-id="@i.Id">
           <select name="status">

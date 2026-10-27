@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, Image, Alert, Animated, Switch, SafeAreaView, StatusBar } from "react-native";
+import { View, Text, ScrollView, Image, Alert, Animated, Switch, SafeAreaView, StatusBar, Platform } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
@@ -339,22 +339,41 @@ function Alerts({ alerts, onShowMap, onBack }: any) {
 
 function MapScreen({ alerts, infra, focus, onBack }: any) {
   const m = useRef<MapView>(null);
+  const mapReady = useRef(false);
+  const pendingRegion = useRef<{ latitude: number; longitude: number; latitudeDelta: number; longitudeDelta: number } | null>(null);
   const [q, setQ] = useState(""); 
   const [showA, setShowA] = useState(true); 
   const [showI, setShowI] = useState(true);
   const [showS, setShowS] = useState(true); // New state for stations
 
-  const fly = (lat: number, lng: number, d = 0.06) => m.current?.animateToRegion({ latitude: lat, longitude: lng, latitudeDelta: d, longitudeDelta: d }, 800);
+  const fly = (lat: number, lng: number, d = 0.06) => {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const region = { latitude: lat, longitude: lng, latitudeDelta: d, longitudeDelta: d };
+    if (!mapReady.current || !m.current) {
+      pendingRegion.current = region;
+      return;
+    }
+    m.current.animateToRegion(region, 800);
+  };
 
   useEffect(() => { if (focus) { const t = setTimeout(() => fly(focus.lat, focus.lng, 0.04), 400); return () => clearTimeout(t); } }, [focus]);
 
   const search = async () => {
-    if (!q.trim()) return;
-    const hit = alerts.find((a: any) => a.lat && `${a.area} ${a.title}`.toLowerCase().includes(q.toLowerCase()));
+    const term = q.trim();
+    if (!term) return;
+    const matches = [...alerts, ...infra, ...DEMO_STATIONS];
+    const inSouthAfrica = (lat: number, lng: number) => lat >= -35.1 && lat <= -22 && lng >= 16.2 && lng <= 33.1;
+    const hit = matches.find((a: any) => a.lat != null && a.lng != null &&
+      Number.isFinite(Number(a.lat)) && Number.isFinite(Number(a.lng)) && inSouthAfrica(Number(a.lat), Number(a.lng)) &&
+      `${a.area ?? ""} ${a.title ?? ""} ${a.name ?? ""}`.toLowerCase().includes(term.toLowerCase()));
     try {
-      const p: any = hit ? { latitude: hit.lat, longitude: hit.lng } : (await Location.geocodeAsync(q))[0];
-      if (!p) return Alert.alert("Location not found");
-      fly(p.latitude, p.longitude);
+      const query = /south africa|\brsa\b/i.test(term) ? term : `${term}, South Africa`;
+      const p: any = hit ? { latitude: Number(hit.lat), longitude: Number(hit.lng) } :
+        (await Location.geocodeAsync(query)).find((result) => inSouthAfrica(result.latitude, result.longitude));
+      if (!p || !Number.isFinite(Number(p.latitude)) || !Number.isFinite(Number(p.longitude))) {
+        return Alert.alert("South African location not found", "Try adding the province or a nearby town to your search.");
+      }
+      fly(Number(p.latitude), Number(p.longitude), 0.04);
     } catch { Alert.alert("Search failed", "Try a suburb or street name."); }
   };
   const withPos = (l: any[]) => l.filter((a: any) => a.lat && a.lng);
@@ -373,8 +392,13 @@ function MapScreen({ alerts, infra, focus, onBack }: any) {
             <MapView 
         ref={m} 
         style={{ flex: 1 }} 
-        
-        initialRegion={{ latitude: -28.4793, longitude: 24.6727, latitudeDelta: 15.0, longitudeDelta: 15.0 }}
+        onMapReady={() => {
+          mapReady.current = true;
+          const region = pendingRegion.current ?? { latitude: -26.2041, longitude: 28.0473, latitudeDelta: 0.25, longitudeDelta: 0.25 };
+          pendingRegion.current = null;
+          m.current?.animateToRegion(region, 0);
+        }}
+        initialRegion={{ latitude: -26.2041, longitude: 28.0473, latitudeDelta: 0.25, longitudeDelta: 0.25 }}
       >
         
         {/* 1. Affected Areas / Alerts */}
@@ -553,7 +577,40 @@ function Report({ user, profile, done, onBack }: any) {
 
      
       let lat: number | null = null, lng: number | null = null;
-      try { const p = await Location.requestForegroundPermissionsAsync(); if (p.granted) { const l = await Location.getCurrentPositionAsync({}); lat = l.coords.latitude; lng = l.coords.longitude; } } catch {}
+      const enteredArea = area.trim();
+      if (enteredArea) {
+        try {
+          if (Platform.OS === "android") {
+            const permission = await Location.requestForegroundPermissionsAsync();
+            if (!permission.granted) {
+              Alert.alert("Location permission needed", "Allow location access so FlowGuard can find the area entered in this report.");
+              return;
+            }
+          }
+          const query = /south africa|\brsa\b/i.test(enteredArea) ? enteredArea : `${enteredArea}, South Africa`;
+          const place = (await Location.geocodeAsync(query)).find((result) =>
+            result.latitude >= -35.1 && result.latitude <= -22 && result.longitude >= 16.2 && result.longitude <= 33.1
+          );
+          if (!place) {
+            Alert.alert("Location not found", "Enter a South African suburb or town, and add the province if needed.");
+            return;
+          }
+          lat = place.latitude;
+          lng = place.longitude;
+        } catch {
+          Alert.alert("Could not find location", "Check the area name and try again.");
+          return;
+        }
+      } else {
+        try {
+          const permission = await Location.requestForegroundPermissionsAsync();
+          if (permission.granted) {
+            const location = await Location.getCurrentPositionAsync({});
+            lat = location.coords.latitude;
+            lng = location.coords.longitude;
+          }
+        } catch {}
+      }
 
       
       await addDoc(collection(db, "issues"), { 
