@@ -1,0 +1,24 @@
+@page
+@model IssuesModel
+<h2>Reported Issues</h2>
+<table>
+  <tr><th>Type</th><th>Details</th><th>Photo</th><th>Location</th><th>Status</th></tr>
+  @foreach (var i in Model.Issues)
+  {
+    <tr>
+      <td>@i.Type</td>
+      <td>@i.Details<br /><small>@(i.CreatedAt?.ToDateTime().ToLocalTime().ToString("g"))</small></td>
+      <td>@if (i.PhotoUrl != null) { <a href="@i.PhotoUrl" target="_blank"><img src="@i.PhotoUrl" width="70" /></a> }</td>
+      <td>@if (i.Lat != null) { <a target="_blank" href="https://maps.google.com/?q=@i.Lat,@i.Lng">View map</a> }</td>
+      <td>
+        <form method="post" asp-page-handler="Update" asp-route-id="@i.Id">
+          <select name="status">
+            @foreach (var s in new[] { "Pending", "In Progress", "Resolved" })
+            { <option value="@s" selected="@(s == i.Status)">@s</option> }
+          </select>
+          <button class="btn" type="submit">Save</button>
+        </form>
+      </td>
+    </tr>
+  }
+</table>

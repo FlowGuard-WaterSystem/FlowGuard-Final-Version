@@ -6,7 +6,7 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { collection, addDoc, setDoc, doc, onSnapshot, query, where, serverTimestamp, deleteDoc } from "firebase/firestore";
-import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, updatePassword, signInAnonymously } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, updatePassword, signInAnonymously } from "firebase/auth";
 import { db, auth } from "./firebaseConfig";
 import { C, FadeIn, Press, Chip, Logo, Splash, WaveHeader, Pulse, Stat, Input, Btn, Card, Head, Tag, Empty, statusColor } from "./ui";
 import { registerForPush, onPush, onPushTap } from "./Notifications";
@@ -14,7 +14,6 @@ import Community from "./Community";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ChatScreen from "./ChatScreen";
 import * as LocalAuthentication from "expo-local-authentication";
-import { signOut } from "firebase/auth";
 
 // ---------------------------------------------------------------------------
 // Data
@@ -150,12 +149,10 @@ function useWeather() {
 
 function AuthScreen() {
   const [reg, setReg] = useState(false);
-  const [name, setName] = useState(""); 
-  const [email, setEmail] = useState(""); 
-  const [pw, setPw] = useState("");
+  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [pw, setPw] = useState("");
   const [busy, setBusy] = useState(false);
 
-    const go = async () => {
+  const go = async () => {
     if (!email.trim() || pw.length < 6) return Alert.alert("Check your details", "Enter your email and a password of 6+ characters.");
     if (reg && !name.trim()) return Alert.alert("Check your details", "Please enter your full name.");
     setBusy(true);
@@ -183,7 +180,6 @@ function AuthScreen() {
     }
     finally { setBusy(false); }
   };
-
   const reset = async () => {
     if (!email.trim()) return Alert.alert("Enter your email above first");
     try { await sendPasswordResetEmail(auth, email.trim()); Alert.alert("Check your inbox", "We sent a password reset link."); }

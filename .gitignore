@@ -11,7 +11,13 @@ supabase/.temp/
 obj/
 bin/
 
+# Local credentials and environment variables
+serviceAccount.json
+.env
+.env.*
+
 # Misc
 .DS_Store
 *.log
-.env
+.npm-cache/
+.expo-home/

@@ -1,0 +1,28 @@
+@page
+@model AlertsModel
+<h2>Manage Alerts</h2>
+<form method="post" asp-page-handler="Create" class="card">
+  <input name="title" placeholder="Title (e.g. Water outage)" required />
+  <input name="area" placeholder="Area (e.g. Soweto)" required />
+  <input name="lat" type="number" step="any" placeholder="Latitude" />
+  <input name="lng" type="number" step="any" placeholder="Longitude" />
+  <button class="btn" type="submit">Publish alert</button>
+</form>
+<table>
+  <tr><th>Title</th><th>Area</th><th>Status</th><th>Created</th><th></th></tr>
+  @foreach (var a in Model.Alerts)
+  {
+    <tr>
+      <td>@a.Title</td><td>@a.Area</td><td><span class="tag">@a.Status</span></td>
+      <td>@(a.CreatedAt?.ToDateTime().ToLocalTime().ToString("g"))</td>
+      <td style="white-space:nowrap">
+        <form method="post" asp-page-handler="Toggle" asp-route-id="@a.Id" asp-route-status="@a.Status" style="display:inline">
+          <button class="btn" type="submit">@(a.Status == "Active" ? "Mark resolved" : "Reactivate")</button>
+        </form>
+        <form method="post" asp-page-handler="Delete" asp-route-id="@a.Id" style="display:inline">
+          <button class="btn danger" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+  }
+</table>

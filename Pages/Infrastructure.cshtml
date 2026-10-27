@@ -1,0 +1,36 @@
+@page
+@model FlowGuardAdmin.Pages.InfrastructureModel
+<h2>Infrastructure Updates</h2>
+@if (TempData["Error"] is string error) { <p class="err">@error</p> }
+<form method="post" asp-page-handler="Create" class="card">
+  <h3>Add an infrastructure update</h3>
+  <input name="title" placeholder="Project or update title" maxlength="160" required />
+  <input name="area" placeholder="Area" maxlength="120" required />
+  <select name="status" required>
+    <option value="Planned">Planned</option><option value="In progress">In progress</option><option value="Completed">Completed</option>
+  </select>
+  <textarea name="detail" rows="3" maxlength="2000" placeholder="Details for residents" required></textarea>
+  <button class="btn" type="submit">Publish update</button>
+</form>
+@if (Model.Projects.Count == 0)
+{
+  <div class="card">No infrastructure updates are published.</div>
+}
+@foreach (var item in Model.Projects)
+{
+  <section class="card">
+    <h3>@item.Title <span class="tag">@item.Status</span></h3>
+    <p><strong>Area:</strong> @item.Area</p>
+    <form method="post" asp-page-handler="Update" asp-route-id="@item.Id">
+      <label>Status <select name="status">
+        @foreach (var status in new[] { "Planned", "In progress", "Completed" })
+        { <option value="@status" selected="@(status == item.Status)">@status</option> }
+      </select></label>
+      <textarea name="detail" rows="3" maxlength="2000" required>@item.Detail</textarea>
+      <button class="btn" type="submit">Save update</button>
+    </form>
+    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" onsubmit="return confirm('Delete this infrastructure update?')">
+      <button class="btn danger" type="submit">Delete</button>
+    </form>
+  </section>
+}
