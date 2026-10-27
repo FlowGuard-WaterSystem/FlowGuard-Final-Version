@@ -1,0 +1,23 @@
+@page
+@model FlowGuardAdmin.Pages.LoginModel
+@{
+    ViewData["Title"] = "Admin sign in";
+}
+
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">FlowGuard / Secure access</p>
+    <h1>Admin sign in</h1>
+    <p class="page-subtitle">Sign in with your administrator credentials to open the control room.</p>
+  </div>
+</section>
+
+<form method="post" class="card" style="display:block;max-width:480px">
+  <input type="hidden" asp-for="ReturnUrl" />
+  <div asp-validation-summary="ModelOnly" class="err" role="alert"></div>
+  <label asp-for="Username">Username</label>
+  <input asp-for="Username" autocomplete="username" required style="display:block;width:100%;margin:8px 0 18px" />
+  <label asp-for="Password">Password</label>
+  <input asp-for="Password" type="password" autocomplete="current-password" required style="display:block;width:100%;margin:8px 0 20px" />
+  <button class="btn" type="submit">Sign in</button>
+</form>
